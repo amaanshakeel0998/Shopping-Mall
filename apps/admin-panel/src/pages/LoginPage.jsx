@@ -71,7 +71,7 @@ export default function LoginPage() {
             <input
               style={inp}
               type="text"
-              placeholder="admin"
+              placeholder="Enter username"
               value={form.username}
               onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
               autoFocus
@@ -120,14 +120,6 @@ export default function LoginPage() {
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
-
-        <div style={{
-          marginTop: 24, padding: '12px 16px', background: '#f0f9ff',
-          borderRadius: 8, border: '1px solid #bae6fd',
-        }}>
-          <p style={{ fontSize: 12, color: '#0369a1', fontWeight: 600, marginBottom: 4 }}>Default Credentials</p>
-          <p style={{ fontSize: 12, color: '#0369a1' }}>Admin: <strong>admin</strong> / <strong>Admin@123</strong></p>
-        </div>
       </div>
 
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>

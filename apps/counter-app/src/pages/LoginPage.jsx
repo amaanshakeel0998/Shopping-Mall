@@ -55,7 +55,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 14 }}>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#94a3b8', marginBottom: 6 }}>USERNAME</label>
-            <input style={inp} type="text" placeholder="cashier01" value={form.username}
+            <input style={inp} type="text" placeholder="Enter username" value={form.username}
               onChange={e => setForm(f => ({ ...f, username: e.target.value }))} autoFocus autoComplete="username" />
           </div>
 
@@ -91,11 +91,6 @@ export default function LoginPage() {
             {loading ? 'SIGNING IN…' : 'SIGN IN'}
           </button>
         </form>
-
-        <div style={{ marginTop: 20, padding: '10px 14px', background: '#0f172a', borderRadius: 8, border: '1px solid #1e293b' }}>
-          <p style={{ fontSize: 11, color: '#475569', fontWeight: 600, marginBottom: 4 }}>DEFAULT CREDENTIALS</p>
-          <p style={{ fontSize: 11, color: '#64748b' }}>cashier01 / Employee@123</p>
-        </div>
       </div>
     </div>
   );
