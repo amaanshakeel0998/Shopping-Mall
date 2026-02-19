@@ -14,7 +14,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const hasToken = !!localStorage.getItem('counter_token');
+    if (err.response?.status === 401 && hasToken) {
       localStorage.removeItem('counter_token');
       localStorage.removeItem('counter_user');
       window.location.reload();
