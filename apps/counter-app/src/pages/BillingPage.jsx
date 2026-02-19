@@ -92,6 +92,14 @@ function PaymentModal({ total, onConfirm, onClose }) {
 
 // ── Receipt Modal ──────────────────────────────────────────────────────────
 function ReceiptModal({ bill, onClose }) {
+  const handleDownloadPdf = async () => {
+    try {
+      await billsApi.downloadPdf(bill.id);
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed to download PDF.');
+    }
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: '#1e293b', borderRadius: 16, padding: 32, width: 420, border: '1px solid #334155', maxHeight: '90vh', overflow: 'auto' }}>
@@ -127,10 +135,10 @@ function ReceiptModal({ bill, onClose }) {
         </div>
 
         <div style={{ display: 'flex', gap: 10 }}>
-          <a href={`/api/v1/bills/${bill.id}/pdf`} target="_blank" rel="noreferrer"
+          <button onClick={handleDownloadPdf}
             style={{ flex: 1, padding: '11px', background: '#334155', color: '#f1f5f9', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <Printer size={15} /> Print PDF
-          </a>
+          </button>
           <button onClick={onClose} style={{ flex: 1, padding: '11px', background: '#10b981', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>
             NEW BILL
           </button>

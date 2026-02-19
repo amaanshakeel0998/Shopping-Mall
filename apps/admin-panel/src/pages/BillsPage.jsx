@@ -68,6 +68,14 @@ export default function BillsPage() {
     } catch (err) { toast.error(err.response?.data?.error?.message || 'Failed.'); }
   };
 
+  const handleDownloadPdf = async (billId) => {
+    try {
+      await billsApi.downloadPdf(billId);
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || 'Failed to download PDF.');
+    }
+  };
+
   const pages = Math.ceil(total / LIMIT);
 
   const statusColor = (s) => {
@@ -242,10 +250,10 @@ export default function BillsPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
-            <a href={billsApi.pdfUrl(viewBill.id)} target="_blank" rel="noreferrer"
-              style={{ padding: '9px 18px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 500 }}>
+            <button onClick={() => handleDownloadPdf(viewBill.id)}
+              style={{ padding: '9px 18px', background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
               Download PDF
-            </a>
+            </button>
             {viewBill.status !== 'cancelled' && (
               <button onClick={() => handleCancel(viewBill)}
                 style={{ padding: '9px 18px', background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>

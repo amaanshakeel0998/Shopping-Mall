@@ -41,6 +41,21 @@ export const billsApi = {
   resume: (id) => api.post(`/bills/${id}/resume`).then(r => r.data),
   deleteHeld: (id) => api.delete(`/bills/held/${id}`).then(r => r.data),
   receipt: (id) => api.get(`/bills/${id}/receipt`).then(r => r.data),
+  downloadPdf: async (id) => {
+    const res = await api.get(`/bills/${id}/pdf`, { responseType: 'blob' });
+    const blobUrl = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+    const disposition = res.headers['content-disposition'] || '';
+    const match = disposition.match(/filename="?([^"]+)"?/i);
+    const filename = match?.[1] || `invoice-${id}.pdf`;
+
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(blobUrl);
+  },
 };
 
 export const categoriesApi = {

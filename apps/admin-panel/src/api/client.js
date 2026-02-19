@@ -88,7 +88,21 @@ export const billsApi = {
   list: (params) => api.get('/bills', { params }).then((r) => r.data),
   get: (id) => api.get(`/bills/${id}`).then((r) => r.data),
   cancel: (id, reason) => api.delete(`/bills/${id}`, { data: { reason } }).then((r) => r.data),
-  pdfUrl: (id) => `${BASE_URL}/bills/${id}/pdf`,
+  downloadPdf: async (id) => {
+    const res = await api.get(`/bills/${id}/pdf`, { responseType: 'blob' });
+    const blobUrl = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+    const disposition = res.headers['content-disposition'] || '';
+    const match = disposition.match(/filename="?([^"]+)"?/i);
+    const filename = match?.[1] || `invoice-${id}.pdf`;
+
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(blobUrl);
+  },
 };
 
 export default api;

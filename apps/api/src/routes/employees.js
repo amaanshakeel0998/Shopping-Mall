@@ -71,23 +71,52 @@ router.post('/', authenticate, requireAdmin, (req, res) => {
     return error(res, 'USERNAME_EXISTS', 'This username is already taken. Please choose a different one.', 409, 'username');
   }
 
-  // Generate employee code
-  const lastCode = db.prepare('SELECT employee_code FROM users ORDER BY created_at DESC LIMIT 1').get();
-  let nextNum = 3;
-  if (lastCode) {
-    const match = lastCode.employee_code.match(/EMP-(\d+)/);
-    if (match) nextNum = parseInt(match[1]) + 1;
-  }
-  const employeeCode = `EMP-${String(nextNum).padStart(3, '0')}`;
-
   const id = uuidv4();
   const passwordHash = bcrypt.hashSync(password, 12);
   const now = new Date().toISOString();
 
-  db.prepare(`
+  // Generate employee code from numeric max instead of created_at ordering.
+  const maxCodeRow = db.prepare(`
+    SELECT COALESCE(MAX(CAST(SUBSTR(employee_code, 5) AS INTEGER)), 0) as max_num
+    FROM users
+    WHERE employee_code LIKE 'EMP-%'
+  `).get();
+  const nextNum = (maxCodeRow?.max_num || 0) + 1;
+  const insertEmployee = db.prepare(`
     INSERT INTO users (id, employee_code, username, password_hash, full_name, role, phone, email, created_by, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, employeeCode, username.trim().toLowerCase(), passwordHash, full_name.trim(), role, phone || null, email || null, req.user.sub, now, now);
+  `);
+
+  let employeeCode = null;
+  let inserted = false;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    employeeCode = `EMP-${String(nextNum + attempt).padStart(3, '0')}`;
+    try {
+      insertEmployee.run(
+        id,
+        employeeCode,
+        username.trim().toLowerCase(),
+        passwordHash,
+        full_name.trim(),
+        role,
+        phone || null,
+        email || null,
+        req.user.sub,
+        now,
+        now
+      );
+      inserted = true;
+      break;
+    } catch (err) {
+      const isEmployeeCodeConflict = (err.message || '').includes('users.employee_code');
+      if (!isEmployeeCodeConflict || attempt === 2) throw err;
+    }
+  }
+
+  if (!inserted) {
+    return error(res, 'EMPLOYEE_CODE_GENERATION_FAILED', 'Failed to generate a unique employee code. Please try again.', 500);
+  }
 
   auditLog({
     actorId: req.user.sub,
